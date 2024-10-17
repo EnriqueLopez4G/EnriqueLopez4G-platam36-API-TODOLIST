@@ -20,18 +20,22 @@ const MainCard =()=> {
       };
 
     return (
-        <div className="card" style={{ 
-                                      width           : '500px', 
-                                      backgroundColor : 'rgb(240, 240, 240)', 
-                                      boxShadow       : '0 4px 8px rgba(0, 0, 0, 0.2)',
-                                      margin          : '10px 0' 
-                                    }}
+        <div 
+          className="card" 
+          style={{ 
+                  width           : '500px', 
+                  backgroundColor : 'rgb(240, 240, 240)', 
+                  boxShadow       : '0 4px 8px rgba(0, 0, 0, 0.2)',
+                  margin          : '10px 0' 
+                }}
         >
-          <p className =" text-center" style = {{
-                                                  color      : 'rgba(86,7,12,0.5)',  
-                                                  fontSize   : '5rem', 
-                                                  fontWeight : '200' 
-                                                }}
+          <p 
+            className =" text-center" 
+            style = {{
+                      color      : 'rgba(86,7,12,0.5)',  
+                      fontSize   : '5rem', 
+                      fontWeight : '200' 
+                    }}
           >
 				    todos
 			    </p>
@@ -89,7 +93,20 @@ const MainCard =()=> {
                   </button>
                 </li>
                 ))}
+                
             </ul>
+            <p 
+              style = {todos.length <= 0 ? { animation: 'parpadeo 1s infinite' } : {}}> {(todos.length <= 0 ? 'No tasks, add a task': '')} 
+            </p>
+            {/* encontre este fragmento en la web para dar efecto de parpadeo, logre adaptarlo aqui, si me funciono a mi */}
+            <style>
+                {`
+                    @keyframes parpadeo {
+                        0%, 100% { opacity: 1; }
+                        50% { opacity: 0; }
+                    }
+                `}
+            </style>
             <hr/>
             <p style = {{opacity:'0.5'}}><strong>{todos.length}</strong>  Activities in the list</p>
             <p className = "text-end" style = {{color: 'blue',opacity:'0.7'}}><strong></strong>🏆Enrique Lopez 4G</p>
