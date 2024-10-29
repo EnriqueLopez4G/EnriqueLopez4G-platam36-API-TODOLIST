@@ -21,7 +21,6 @@ const UserForm = () => {
                 throw new Error(`Error: ${response.statusText}`);
             }
             const data = await response.json();
-            console.log("MIS DATOS DESPUES DE API:", data);
             setUsers([...users,data]);
         } catch (error) {
             console.log(error);

@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from "react";
+import '../../styles/MainCard.css';
 
 const MainCard = ({ user }) => {
     const [inputValue, setInputValue] = useState('');
     const [todos, setTodos] = useState([]);
+    const URL_BASE = `https://playground.4geeks.com/todo`;
+
 
     const fetchTodos = async () => {
-        const response = await fetch(`https://playground.4geeks.com/todo/users/${user.name}`);
+        const response = await fetch(`${URL_BASE}/users/${user.name}`);
         if (response.ok) {
             const result = await response.json();
             setTodos(result.todos || []);
@@ -15,38 +18,62 @@ const MainCard = ({ user }) => {
     };
 
     const putActivity = async () => {
-        const response = await fetch(`https://playground.4geeks.com/todo/todos/${user.name}`, {
+        const response = await fetch(`${URL_BASE}/todos/${user.name}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ label: inputValue, is_done: false }),
         });
 
         if (response.ok) {
-            const newTodo = await response.json();
-            setTodos(prev => [...prev, newTodo]);
-            setInputValue('');
+            setInputValue(''); // Limpiar el input
+            await fetchTodos(); // Hacer GET para asegurar que la lista esté actualizada
         } else {
             console.error("Error al agregar actividad:", await response.json());
         }
     };
 
     const handleDelete = async (todoId) => {
-        const response = await fetch(`https://playground.4geeks.com/todo/todos/${todoId}`, { method: 'DELETE' });
+        const response = await fetch(`${URL_BASE}/todos/${todoId}`, { method: 'DELETE' });
 
         if (response.ok) {
-            setTodos(todos.filter(todo => todo.id !== todoId));
             alert('Tarea eliminada con éxito.');
+            await fetchTodos(); // Hacer GET para asegurar que la lista esté actualizada
         } else {
             console.error("Error al eliminar la tarea:", await response.json());
         }
     };
 
     const handleDeleteAll = async () => {
-        await Promise.all(todos.map(todo => 
-            fetch(`https://playground.4geeks.com/todo/todos/${todo.id}`, { method: 'DELETE' })
-        ));
-        setTodos([]);
-        alert('Todas las tareas han sido eliminadas.');
+        const URL_API_USER = `${URL_BASE}/users/${user.name}`;
+        try {
+            const response = await fetch(URL_API_USER, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            });
+            if (!response.ok) {
+                throw new Error(`Error: ${response.statusText}`);
+            }
+            
+            try {
+                const response = await fetch(URL_API_USER, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                });
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.statusText}`);
+                }
+                const data = await response.json();
+                await fetchTodos(); // Hacer GET para asegurar que la lista esté actualizada
+            } catch (error) {
+                console.log(error);
+            }
+        } catch (error) {
+            console.log(error);
+        }
     };
 
     useEffect(() => {
@@ -54,8 +81,8 @@ const MainCard = ({ user }) => {
     }, [user.name]);
 
     return (
-        <div className="card" style={{ width: '500px', backgroundColor: '#f0f0f0', margin: '10px 0' }}>
-            <p>User: {user.name}</p>
+        <div className="card bg-light my-2" style={{ width: "500px" }}>
+            <p>User: <strong>{user.name}</strong></p>
             <input
                 type="text"
                 className="form-control"
@@ -64,11 +91,15 @@ const MainCard = ({ user }) => {
                 onChange={e => setInputValue(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && inputValue.trim() && putActivity()}
             />
-            <ul>
+            <ul className="list-unstyled">
                 {todos.map(todo => (
-                    <li key={todo.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <li key={todo.id} className="d-flex justify-content-between align-items-center todoItem">
                         <span>{todo.label}</span>
-                        <button onClick={() => handleDelete(todo.id)} style={{ border: 'none', background: 'white', cursor: 'pointer' }}>
+                        <button 
+                            className="deleteBtn" 
+                            onClick={() => handleDelete(todo.id)} 
+                            style={{ border: 'none', background: 'white', cursor: 'pointer' }}
+                        >
                             ❌
                         </button>
                     </li>
